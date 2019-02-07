@@ -1,4 +1,4 @@
-var GasDropComponent = require('./components/GasDrop.js')
+var GasDropComponent = require('./components/EventListener')
 var Web3Service = require('./services/Web3Service')
 
 async function main() {

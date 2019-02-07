@@ -17,5 +17,10 @@ module.exports = {
       },
       network_id: "*",
     },
-  }
+  },
+  compilers: {
+    solc: {
+      version: '0.4.25'  // ex:  "0.4.20". (Default: Truffle's installed solc)
+    }
+ }
 }
