@@ -16,7 +16,7 @@ const vendors = require('./../VendorIdentities.json')
 
 let TOKEN_ABI = CONTRACT_ARTIFACT.abi
 var tokenContract
-var lastEventBlock = 17
+var lastEventBlock = 2067260
 var doneFirstRun = false
 var eth
 var utils

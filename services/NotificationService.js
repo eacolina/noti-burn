@@ -2,15 +2,20 @@ module.exports = {
     init:init,
     sendOffRampNotification:sendOffRampNotifcation
 }
+
+if (process.env.NODE_ENV != 'production') {
+    require('dotenv').load()
+}
+
 var nodemailer = require('nodemailer')
 var transport
 let emails = ["educolina2@gmail.com", "eacolina@uwaterloo.ca"]
 let phoneNumbers = ['']
-const accountSid = 'AC75b23858af4c26592925d8bcdcc4e9d4'
-const authToken = '0f9713f579e1b162d75b5f2b967c5c38'
-const client = require('twilio')(accountSid, authToken)
-const fromNumber = "+12015914091"
+const accountSid = process.env.TWILIO_ACCOUT_SID
+const authToken = process.env.TWILIO_AUTH_TOKEN
+const fromNumber = process.env.TWILIO_FROM_NUMBER
 const toNumber = "+593980470694" 
+const twilioClient = require('twilio')(accountSid, authToken)
 // Initalize the service, create a transport object for nodemailer
 function init(){
     transport = nodemailer.createTransport({
@@ -19,7 +24,7 @@ function init(){
         secure: true,
         auth:{ // extract this
             user: "edificiosantafeuio@gmail.com",
-            pass: "Casa2257007"
+            pass: process.env.GMAIL_PASSWORD
         }
     })
     console.log("Notification Service started")
@@ -30,7 +35,7 @@ function sendOffRampNotifcation(identity, offRampValue){
     let html = generateOffRampHTML(identity, offRampValue)
     let plainText = `The vendor ${identity.name} with address ${identity.address} has requested to initate a Wyre transfer for ${offRampValue} USD. Please check your email`
     sendOffRampEmail(html, plainText, emails)
-    sendSMSAlerts(plainText)
+    // sendSMSAlerts(plainText)
 }
 // Sends the notifiaction via email to every email inthe to_list array
 function sendOffRampEmail(html, plainText,to_list){
@@ -56,7 +61,7 @@ function sendOffRampEmail(html, plainText,to_list){
 }
 // Send the SMS alert, check Twilio DOCSs
 function sendSMSAlerts(_message){
-    client.messages
+    twilioClient.messages
   .create({
      body: _message,
      from: fromNumber,
