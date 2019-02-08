@@ -9,14 +9,14 @@ if (process.env.NODE_ENV != 'production') {
 
 var NotificationService = require('./../services/NotificationService')
 
-const DROP_AMOUNT = '0.02' // amount that should be droped to the new token holder
 const BURN_ACCOUNT = '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF'
 const CONTRACT_ARTIFACT = require('./../build/contracts/ERC20Vendable.json');
 const vendors = require('./../VendorIdentities.json')
-
+const configFile = require('./../config.json')
+var Utils = require('./../utils/utils')
 let TOKEN_ABI = CONTRACT_ARTIFACT.abi
 var tokenContract
-var lastEventBlock = 2067501
+var lastEventBlock = configFile.LAST_BLOCK
 var doneFirstRun = false
 var eth
 var utils
@@ -26,7 +26,6 @@ async function startPolling(web3Service) {
     eth = web3Service.eth
     utils = web3Service.utils
     account = (await eth.getAccounts())[0]
-    dropAmount = utils.toWei(DROP_AMOUNT)
     console.log("Starting GasDrop component...")
     tokenContract = new web3Service.eth.Contract(TOKEN_ABI, process.env.TOKEN_ADDRESS, {
         from: account
@@ -68,6 +67,8 @@ async function TransferCB(err, res) {
                     NotificationService.sendOffRampNotification(vendor, value, txHash)
                 }
             }
+            configFile.LAST_BLOCK = lastEventBlock // create the new object
+            Utils.updateConfigFile(configFile)// save the new block number to the file
         }
         doneFirstRun = true // flag to stop start polling
     }
