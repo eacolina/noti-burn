@@ -14,7 +14,7 @@ let phoneNumbers = ['']
 const accountSid = process.env.TWILIO_ACCOUT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
 const fromNumber = process.env.TWILIO_FROM_NUMBER
-const toNumber = "+593980470694" 
+const toNumber = "+593980470694‬" 
 const twilioClient = require('twilio')(accountSid, authToken)
 // Initalize the service, create a transport object for nodemailer
 function init(){
@@ -23,7 +23,7 @@ function init(){
         port: 465,
         secure: true,
         auth:{ // extract this
-            user: "edificiosantafeuio@gmail.com",
+            user: "edu.side.projects@gmail.com",
             pass: process.env.GMAIL_PASSWORD
         }
     })
@@ -31,11 +31,12 @@ function init(){
 }
 // Identity: Vendor indentity object, check VendorIdentites.json for format
 // This will trigger the send of the email notification with nodemailer and the SMS notification using Twilio
-function sendOffRampNotifcation(identity, offRampValue){
-    let html = generateOffRampHTML(identity, offRampValue)
+function sendOffRampNotifcation(identity, offRampValue,txHash){
+    let html = generateOffRampHTML(identity, offRampValue,txHash)
     let plainText = `The vendor ${identity.name} with address ${identity.address} has requested to initate a Wyre transfer for ${offRampValue} USD. Please check your email`
+    let SMSText = `The vendor ${identity.name} has requested to initate a Wyre transfer for ${offRampValue} USD. Please check your email for details. BURNER WALLET TEAM`
     sendOffRampEmail(html, plainText, emails)
-    // sendSMSAlerts(plainText)
+    sendSMSAlerts(SMSText)
 }
 // Sends the notifiaction via email to every email inthe to_list array
 function sendOffRampEmail(html, plainText,to_list){
@@ -73,7 +74,7 @@ function sendSMSAlerts(_message){
 
 
 // Refactor this ugly thing!! 😭 Genrate the stringified HTML used for the pretty email notitication
-function generateOffRampHTML(identity, offRampValue){
+function generateOffRampHTML(identity, offRampValue,txHash){
     let html = `
 <html>
 <div class="_rp_D5 ms-font-weight-regular ms-font-color-neutralDark isMessageBodyInPopout" tabindex="-1" role="presentation" id="Item.MessageNormalizedBody" style="font-family: wf_segoe-ui_normal, &quot;Segoe UI&quot;, &quot;Segoe WP&quot;, Tahoma, Arial, sans-serif, serif, EmojiFont;">
@@ -83,6 +84,9 @@ function generateOffRampHTML(identity, offRampValue){
     <div id="x_body">Hi Admin!<br>
     <br>
     The vendor ${identity.name} with address ${identity.address} has requested to initate a Wyre transfer for ${offRampValue} USD.
+    <br>
+    <br>
+    You can confirm the transaction on Blockscout using the following <a href="https://blockscout.com/poa/dai/tx/${txHash}">link</a>
     <br>
     Please authorize the transfer  <a href="https://www.ethdenver.com/waiver" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable">
     here</a> 

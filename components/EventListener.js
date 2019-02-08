@@ -16,7 +16,7 @@ const vendors = require('./../VendorIdentities.json')
 
 let TOKEN_ABI = CONTRACT_ARTIFACT.abi
 var tokenContract
-var lastEventBlock = 2067260
+var lastEventBlock = 2067501
 var doneFirstRun = false
 var eth
 var utils
@@ -61,10 +61,11 @@ async function TransferCB(err, res) {
                 var eventData = res[i].returnValues
                 if(checkIfVendorBurn(eventData)){ // check is this transaction corresponds to a vendor cash out
                     let value = utils.fromWei(eventData.value)
+                    let txHash = res[i].transactionHash
                     let message = `There was a vendor burn of ${value} USD from account ${eventData.from}`
                     console.log(message)
                     let vendor = vendors[eventData.from]
-                    NotificationService.sendOffRampNotification(vendor, value)
+                    NotificationService.sendOffRampNotification(vendor, value, txHash)
                 }
             }
         }
