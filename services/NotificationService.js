@@ -8,13 +8,12 @@ if (process.env.NODE_ENV != 'production') {
 }
 
 var nodemailer = require('nodemailer')
+var adminList = require('./../AdminIdentities')
 var transport
 let emails = ["educolina2@gmail.com", "eacolina@uwaterloo.ca"]
-let phoneNumbers = ['']
 const accountSid = process.env.TWILIO_ACCOUT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
 const fromNumber = process.env.TWILIO_FROM_NUMBER
-const toNumber = "+593980470694‬" 
 const twilioClient = require('twilio')(accountSid, authToken)
 // Initalize the service, create a transport object for nodemailer
 function init(){
@@ -34,16 +33,19 @@ function init(){
 function sendOffRampNotifcation(identity, offRampValue,txHash){
     let html = generateOffRampHTML(identity, offRampValue,txHash)
     let plainText = `The vendor ${identity.name} with address ${identity.address} has requested to initate a Wyre transfer for ${offRampValue} USD. Please check your email`
-    let SMSText = `The vendor ${identity.name} has requested to initate a Wyre transfer for ${offRampValue} USD. Please check your email for details. BURNER WALLET TEAM`
-    sendOffRampEmail(html, plainText, emails)
-    sendSMSAlerts(SMSText)
+    let SMSText = `${identity.name} (${identity.address}) requested Wyre transfer for ${offRampValue} USD`
+    for(var i = 0; i < adminList.length; i++){ // iterate through admin list and send notifications
+        let admin = adminList[i]
+        sendOffRampEmail(html, plainText, admin.email)
+        sendSMSAlerts(SMSText,admin.phoneNumber)
+    }
 }
 // Sends the notifiaction via email to every email inthe to_list array
-function sendOffRampEmail(html, plainText,to_list){
+function sendOffRampEmail(html, plainText,to_email){
     // build email message
     var message = {
         from: "sender@server.com",
-        to: to_list,
+        to: to_email,
         subject: "ETHDenver - Vendor Cashout Request",
         text: plainText,
         html: html
@@ -61,7 +63,7 @@ function sendOffRampEmail(html, plainText,to_list){
       })
 }
 // Send the SMS alert, check Twilio DOCSs
-function sendSMSAlerts(_message){
+function sendSMSAlerts(_message,toNumber){
     twilioClient.messages
   .create({
      body: _message,
