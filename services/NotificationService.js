@@ -10,7 +10,6 @@ if (process.env.NODE_ENV != 'production') {
 var nodemailer = require('nodemailer')
 var adminList = require('./../AdminIdentities')
 var transport
-let emails = ["educolina2@gmail.com", "eacolina@uwaterloo.ca"]
 const accountSid = process.env.TWILIO_ACCOUT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
 const fromNumber = process.env.TWILIO_FROM_NUMBER
